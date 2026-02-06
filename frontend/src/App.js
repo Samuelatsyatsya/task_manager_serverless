@@ -28,6 +28,9 @@ function App() {
     <Authenticator
       signUpAttributes={['email']}
       loginMechanisms={['email']}
+
+      // This handles password change flow automatically
+      variation="modal"
     >
       {({ signOut, user }) => (
         <Router>
