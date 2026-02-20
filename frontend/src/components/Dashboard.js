@@ -19,64 +19,64 @@ function Dashboard({ user }) {
     getUserRole();
   }, []);
 
-  // const getUserRole = async () => {
-  //   try {
-  //     const attributes = user.signInUserSession?.idToken?.payload;
-
-  //     // Debug: Log the entire payload
-  //     console.log('ID Token Payload:', attributes);
-  //     console.log('Custom Role:', attributes?.['custom:role']);
-  //     console.log('Cognito Groups:', attributes?.['cognito:groups']);
-
-  //     // Check both custom:role and cognito:groups
-  //     const customRole = attributes?.['custom:role'];
-  //     const groups = attributes?.['cognito:groups'] || [];
-
-  //     // User is admin if they have custom:role = 'admin' OR are in 'admin' group
-  //     const isAdmin = customRole === 'admin' || groups.includes('admin');
-  //     const role = isAdmin ? 'admin' : 'member';
-
-  //     console.log('Determined Role:', role);
-  //     setUserRole(role);
-  //   } catch (err) {
-  //     console.error('Error getting user role:', err);
-  //   }
-  // };
-
   const getUserRole = async () => {
     try {
       const attributes = user.signInUserSession?.idToken?.payload;
 
-      // Log EVERYTHING
-      console.log("=== FULL DEBUG ===");
-      console.log("Raw ID Token:", user.signInUserSession?.idToken?.jwtToken);
-      console.log("All Token Claims:", JSON.stringify(attributes, null, 2));
-      console.log("Custom Role:", attributes?.["custom:role"]);
-      console.log("Cognito Groups:", attributes?.["cognito:groups"]);
+      // Debug: Log the entire payload
+      console.log('ID Token Payload:', attributes);
+      console.log('Custom Role:', attributes?.['custom:role']);
+      console.log('Cognito Groups:', attributes?.['cognito:groups']);
 
-      // List ALL keys in the token
-      console.log("All attribute keys:", Object.keys(attributes || {}));
-      console.log("==================");
+      // Check both custom:role and cognito:groups
+      const customRole = attributes?.['custom:role'];
+      const groups = attributes?.['cognito:groups'] || [];
 
-      const customRole = attributes?.["custom:role"];
-      const groups = attributes?.["cognito:groups"] || [];
-      const email = user.signInDetails?.loginId;
+      // User is admin if they have custom:role = 'admin' OR are in 'admin' group
+      const isAdmin = customRole === 'admin' || groups.includes('admin');
+      const role = isAdmin ? 'admin' : 'member';
 
-      // Force admin for your email temporarily
-      const isAdmin =
-        email === "samuel.atsyatsya@amalitech.com" ||
-        customRole === "admin" ||
-        groups.includes("admin");
-
-      const role = isAdmin ? "admin" : "member";
-
-      console.log("Final determined role:", role);
-
+      console.log('Determined Role:', role);
       setUserRole(role);
     } catch (err) {
-      console.error("Error getting user role:", err);
+      console.error('Error getting user role:', err);
     }
   };
+
+  // const getUserRole = async () => {
+  //   try {
+  //     const attributes = user.signInUserSession?.idToken?.payload;
+
+  //     // Log EVERYTHING
+  //     console.log("=== FULL DEBUG ===");
+  //     console.log("Raw ID Token:", user.signInUserSession?.idToken?.jwtToken);
+  //     console.log("All Token Claims:", JSON.stringify(attributes, null, 2));
+  //     console.log("Custom Role:", attributes?.["custom:role"]);
+  //     console.log("Cognito Groups:", attributes?.["cognito:groups"]);
+
+  //     // List ALL keys in the token
+  //     console.log("All attribute keys:", Object.keys(attributes || {}));
+  //     console.log("==================");
+
+  //     const customRole = attributes?.["custom:role"];
+  //     const groups = attributes?.["cognito:groups"] || [];
+  //     const email = user.signInDetails?.loginId;
+
+  //     // Force admin for your email temporarily
+  //     const isAdmin =
+  //       email === "samuel.atsyatsya@amalitech.com" ||
+  //       customRole === "admin" ||
+  //       groups.includes("admin");
+
+  //     const role = isAdmin ? "admin" : "member";
+
+  //     console.log("Final determined role:", role);
+
+  //     setUserRole(role);
+  //   } catch (err) {
+  //     console.error("Error getting user role:", err);
+  //   }
+  // };
 
   const fetchStats = async () => {
     try {
