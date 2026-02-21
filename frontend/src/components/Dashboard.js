@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { taskAPI } from "../services/api";
+import { Auth } from "aws-amplify"; // use Auth for session
 import "./Dashboard.css";
 
-function Dashboard({ user }) {
+function Dashboard() {
   const [stats, setStats] = useState({
     total: 0,
     open: 0,
@@ -13,6 +14,7 @@ function Dashboard({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userRole, setUserRole] = useState("member");
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     fetchStats();
@@ -21,62 +23,25 @@ function Dashboard({ user }) {
 
   const getUserRole = async () => {
     try {
-      const attributes = user.signInUserSession?.idToken?.payload;
+      const session = await Auth.currentSession();
+      const idToken = session.getIdToken();
+      const payload = idToken.payload;
 
-      // Debug: Log the entire payload
-      console.log('ID Token Payload:', attributes);
-      console.log('Custom Role:', attributes?.['custom:role']);
-      console.log('Cognito Groups:', attributes?.['cognito:groups']);
+      console.log("ID Token Payload:", payload);
+      const customRole = payload["custom:role"];
+      const groups = payload["cognito:groups"] || [];
 
-      // Check both custom:role and cognito:groups
-      const customRole = attributes?.['custom:role'];
-      const groups = attributes?.['cognito:groups'] || [];
+      const isAdmin = customRole === "admin" || groups.includes("admin");
+      const role = isAdmin ? "admin" : "member";
 
-      // User is admin if they have custom:role = 'admin' OR are in 'admin' group
-      const isAdmin = customRole === 'admin' || groups.includes('admin');
-      const role = isAdmin ? 'admin' : 'member';
-
-      console.log('Determined Role:', role);
       setUserRole(role);
+      setUserEmail(payload.email || "");
+      console.log("Determined Role:", role);
     } catch (err) {
-      console.error('Error getting user role:', err);
+      console.error("Error getting user role:", err);
+      setUserRole("member");
     }
   };
-
-  // const getUserRole = async () => {
-  //   try {
-  //     const attributes = user.signInUserSession?.idToken?.payload;
-
-  //     // Log EVERYTHING
-  //     console.log("=== FULL DEBUG ===");
-  //     console.log("Raw ID Token:", user.signInUserSession?.idToken?.jwtToken);
-  //     console.log("All Token Claims:", JSON.stringify(attributes, null, 2));
-  //     console.log("Custom Role:", attributes?.["custom:role"]);
-  //     console.log("Cognito Groups:", attributes?.["cognito:groups"]);
-
-  //     // List ALL keys in the token
-  //     console.log("All attribute keys:", Object.keys(attributes || {}));
-  //     console.log("==================");
-
-  //     const customRole = attributes?.["custom:role"];
-  //     const groups = attributes?.["cognito:groups"] || [];
-  //     const email = user.signInDetails?.loginId;
-
-  //     // Force admin for your email temporarily
-  //     const isAdmin =
-  //       email === "samuel.atsyatsya@amalitech.com" ||
-  //       customRole === "admin" ||
-  //       groups.includes("admin");
-
-  //     const role = isAdmin ? "admin" : "member";
-
-  //     console.log("Final determined role:", role);
-
-  //     setUserRole(role);
-  //   } catch (err) {
-  //     console.error("Error getting user role:", err);
-  //   }
-  // };
 
   const fetchStats = async () => {
     try {
@@ -84,14 +49,13 @@ function Dashboard({ user }) {
       const response = await taskAPI.getTasks();
       const tasks = response.tasks || [];
 
-      const stats = {
+      setStats({
         total: tasks.length,
         open: tasks.filter((t) => t.status === "open").length,
         inProgress: tasks.filter((t) => t.status === "in-progress").length,
         closed: tasks.filter((t) => t.status === "closed").length,
-      };
+      });
 
-      setStats(stats);
       setError(null);
     } catch (err) {
       console.error("Error fetching stats:", err);
@@ -101,19 +65,13 @@ function Dashboard({ user }) {
     }
   };
 
-  if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
-  }
-
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
+  if (loading) return <div className="loading">Loading dashboard...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <div className="dashboard">
       <h2>Dashboard</h2>
 
-      {/* Debug section - remove after fixing */}
       <div
         style={{
           background: "#f0f0f0",
@@ -124,7 +82,7 @@ function Dashboard({ user }) {
       >
         <strong>Debug Info:</strong>
         <div>Current Role: {userRole}</div>
-        <div>User Email: {user.signInDetails?.loginId}</div>
+        <div>User Email: {userEmail}</div>
         <div>Check browser console for full token details</div>
       </div>
 
