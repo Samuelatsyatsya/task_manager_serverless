@@ -1,20 +1,22 @@
 import axios from 'axios';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { Auth } from 'aws-amplify'; // updated import
 
 const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 
 const apiClient = axios.create({
   baseURL: API_ENDPOINT,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 // Add auth token to requests
 apiClient.interceptors.request.use(async (config) => {
   try {
-    const session = await fetchAuthSession();
-    const token = session.tokens.idToken.toString();
+    // Get the current session from Amplify Auth
+    const session = await Auth.currentSession();
+    const idToken = session.getIdToken();
+    const token = idToken.getJwtToken(); // proper JWT string
     config.headers.Authorization = `Bearer ${token}`;
   } catch (error) {
     console.error('Error getting auth token:', error);
@@ -37,7 +39,7 @@ export const taskAPI = {
   },
 
   // Update a task
-    updateTask: async (taskId, updates) => {
+  updateTask: async (taskId, updates) => {
     const response = await apiClient.put(`/tasks/${taskId}`, updates);
     return response.data;
   },
@@ -52,7 +54,7 @@ export const taskAPI = {
   closeTask: async (taskId) => {
     const response = await apiClient.post(`/tasks/${taskId}/close`);
     return response.data;
-  }
+  },
 };
 
 export default apiClient;
