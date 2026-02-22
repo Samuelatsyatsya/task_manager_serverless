@@ -13,9 +13,10 @@ import Dashboard from "./components/Dashboard";
 import TaskList from "./components/TaskList";
 import CreateTask from "./components/CreateTask";
 import TaskDetail from "./components/TaskDetail";
+import AssignTask from './components/AssignTask';
 import "./App.css";
 
-// ✅ Amplify Gen 2 config
+// Amplify Gen 2 config
 Amplify.configure({
   Auth: {
     Cognito: {
