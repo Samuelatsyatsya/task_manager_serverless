@@ -10,6 +10,7 @@ import CreateTask from './components/CreateTask';
 import TaskDetail from './components/TaskDetail';
 import './App.css';
 
+// ✅ Amplify Gen 2 config
 Amplify.configure({
   Auth: {
     Cognito: {
@@ -38,10 +39,10 @@ function App() {
 
             <main className="App-main">
               <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/tasks" element={<TaskList />} />
-                <Route path="/tasks/create" element={<CreateTask />} />
-                <Route path="/tasks/:taskId" element={<TaskDetail />} />
+                <Route path="/" element={<Dashboard user={user} />} />
+                <Route path="/tasks" element={<TaskList user={user} />} />
+                <Route path="/tasks/create" element={<CreateTask user={user} />} />
+                <Route path="/tasks/:taskId" element={<TaskDetail user={user} />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>

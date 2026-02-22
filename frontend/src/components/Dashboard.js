@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { taskAPI } from "../services/api";
+import { fetchAuthSession } from "aws-amplify/auth";
 import "./Dashboard.css";
-
 
 function Dashboard({ user }) {
   const [stats, setStats] = useState({
@@ -17,33 +17,31 @@ function Dashboard({ user }) {
 
   useEffect(() => {
     fetchStats();
-    getUserRole();
+    loadUserRole();
   }, []);
 
-  const getUserRole = async () => {
+  // ✅ Gen 2–correct role detection
+  const loadUserRole = async () => {
     try {
-      const attributes = user.signInUserSession?.idToken?.payload;
+      const session = await fetchAuthSession();
+      const payload = session.tokens?.idToken?.payload;
 
-      // Debug: Log the entire payload
-      console.log('ID Token Payload:', attributes);
-      console.log('Custom Role:', attributes?.['custom:role']);
-      console.log('Cognito Groups:', attributes?.['cognito:groups']);
+      console.log("=== ID TOKEN PAYLOAD ===");
+      console.log(payload);
+      console.log("========================");
 
-      // Check both custom:role and cognito:groups
-      const customRole = attributes?.['custom:role'];
-      const groups = attributes?.['cognito:groups'] || [];
+      const customRole = payload?.["custom:role"];
+      const groups = payload?.["cognito:groups"] || [];
 
-      // User is admin if they have custom:role = 'admin' OR are in 'admin' group
-      const isAdmin = customRole === 'admin' || groups.includes('admin');
-      const role = isAdmin ? 'admin' : 'member';
+      const isAdmin =
+        customRole === "admin" || groups.includes("admin");
 
-      console.log('Determined Role:', role);
-      setUserRole(role);
+      setUserRole(isAdmin ? "admin" : "member");
     } catch (err) {
-      console.error('Error getting user role:', err);
+      console.error("Error determining user role:", err);
+      setUserRole("member");
     }
   };
-
 
   const fetchStats = async () => {
     try {
@@ -51,14 +49,13 @@ function Dashboard({ user }) {
       const response = await taskAPI.getTasks();
       const tasks = response.tasks || [];
 
-      const stats = {
+      setStats({
         total: tasks.length,
         open: tasks.filter((t) => t.status === "open").length,
         inProgress: tasks.filter((t) => t.status === "in-progress").length,
         closed: tasks.filter((t) => t.status === "closed").length,
-      };
+      });
 
-      setStats(stats);
       setError(null);
     } catch (err) {
       console.error("Error fetching stats:", err);
@@ -80,7 +77,7 @@ function Dashboard({ user }) {
     <div className="dashboard">
       <h2>Dashboard</h2>
 
-      {/* Debug section - remove after fixing */}
+      {/* Debug block (safe to remove later) */}
       <div
         style={{
           background: "#f0f0f0",
@@ -92,7 +89,7 @@ function Dashboard({ user }) {
         <strong>Debug Info:</strong>
         <div>Current Role: {userRole}</div>
         <div>User Email: {user.signInDetails?.loginId}</div>
-        <div>Check browser console for full token details</div>
+        <div>Check console for full token payload</div>
       </div>
 
       <div className="stats-grid">
@@ -120,6 +117,7 @@ function Dashboard({ user }) {
           <Link to="/tasks" className="btn btn-primary">
             View All Tasks
           </Link>
+
           {userRole === "admin" && (
             <Link to="/tasks/create" className="btn btn-success">
               Create New Task
