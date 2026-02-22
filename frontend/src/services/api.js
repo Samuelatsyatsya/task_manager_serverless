@@ -1,13 +1,12 @@
-
-import axios from 'axios';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import axios from "axios";
+import { fetchAuthSession } from "aws-amplify/auth";
 
 const API_ENDPOINT = process.env.REACT_APP_API_ENDPOINT;
 
 const apiClient = axios.create({
   baseURL: API_ENDPOINT,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -22,23 +21,28 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.error('Failed to attach auth token', error);
+      console.error("Failed to attach auth token", error);
     }
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export const taskAPI = {
+  getUsers: async () => {
+    const response = await apiClient.get("/users");
+    return response.data;
+  },
+
   getTasks: async (status = null) => {
     const params = status ? { status } : {};
-    const response = await apiClient.get('/tasks', { params });
+    const response = await apiClient.get("/tasks", { params });
     return response.data;
   },
 
   createTask: async (taskData) => {
-    const response = await apiClient.post('/tasks', taskData);
+    const response = await apiClient.post("/tasks", taskData);
     return response.data;
   },
 
@@ -48,10 +52,9 @@ export const taskAPI = {
   },
 
   assignTask: async (taskId, userId) => {
-    const response = await apiClient.post(
-      `/tasks/${taskId}/assign`,
-      { userId }
-    );
+    const response = await apiClient.post(`/tasks/${taskId}/assign`, {
+      userId,
+    });
     return response.data;
   },
 

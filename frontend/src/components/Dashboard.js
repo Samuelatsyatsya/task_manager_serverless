@@ -33,8 +33,7 @@ function Dashboard({ user }) {
       const customRole = payload?.["custom:role"];
       const groups = payload?.["cognito:groups"] || [];
 
-      const isAdmin =
-        customRole === "admin" || groups.includes("admin");
+      const isAdmin = customRole === "admin" || groups.includes("admin");
 
       setUserRole(isAdmin ? "admin" : "member");
     } catch (err) {
@@ -135,6 +134,9 @@ function Dashboard({ user }) {
             </Link>
             <Link to="/users" className="btn btn-secondary">
               Manage Users
+            </Link>
+            <Link to="/tasks/assign" className="btn btn-secondary">
+              Assign Task
             </Link>
           </div>
         </div>
