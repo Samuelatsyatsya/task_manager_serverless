@@ -2,6 +2,16 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { taskAPI } from "../services/api";
 import { fetchAuthSession } from "aws-amplify/auth";
+import { 
+  FiGrid, 
+  FiClipboard, 
+  FiCheckCircle, 
+  FiClock, 
+  FiXCircle,
+  FiUsers,
+  FiPlusCircle,
+  FiBarChart2
+} from "react-icons/fi";
 import "./Dashboard.css";
 
 function Dashboard({ user }) {
@@ -20,21 +30,15 @@ function Dashboard({ user }) {
     loadUserRole();
   }, []);
 
-  // ✅ Gen 2–correct role detection
   const loadUserRole = async () => {
     try {
       const session = await fetchAuthSession();
       const payload = session.tokens?.idToken?.payload;
 
-      console.log("=== ID TOKEN PAYLOAD ===");
-      console.log(payload);
-      console.log("========================");
-
       const customRole = payload?.["custom:role"];
       const groups = payload?.["cognito:groups"] || [];
 
       const isAdmin = customRole === "admin" || groups.includes("admin");
-
       setUserRole(isAdmin ? "admin" : "member");
     } catch (err) {
       console.error("Error determining user role:", err);
@@ -64,80 +68,198 @@ function Dashboard({ user }) {
     }
   };
 
+  const StatCard = ({ title, value, icon: Icon, color, status }) => (
+    <div className={`stat-card ${status}`}>
+      <div className="stat-icon-wrapper">
+        <Icon className="stat-icon" style={{ color }} />
+      </div>
+      <div className="stat-content">
+        <h3 className="stat-title">{title}</h3>
+        <p className="stat-value">{value}</p>
+      </div>
+      <div className="stat-trend">
+        <span className="trend-indicator">→</span>
+      </div>
+    </div>
+  );
+
   if (loading) {
-    return <div className="loading">Loading dashboard...</div>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return (
+      <div className="error-container">
+        <FiXCircle size={48} />
+        <h3>Error Loading Dashboard</h3>
+        <p>{error}</p>
+        <button onClick={fetchStats} className="btn-retry">
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className="dashboard">
-      <h2>Dashboard</h2>
-
-      {/* Debug block (safe to remove later) */}
-      <div
-        style={{
-          background: "#f0f0f0",
-          padding: "15px",
-          margin: "15px 0",
-          borderRadius: "5px",
-        }}
-      >
-        <strong>Debug Info:</strong>
-        <div>Current Role: {userRole}</div>
-        <div>User Email: {user.signInDetails?.loginId}</div>
-        <div>Check console for full token payload</div>
+      {/* Header Section */}
+      <div className="dashboard-header">
+        <div className="header-left">
+          <h1>Dashboard</h1>
+          <p className="welcome-text">
+            Welcome back, <span>{user.signInDetails?.loginId?.split('@')[0] || 'User'}</span>
+          </p>
+        </div>
+        <div className="header-right">
+          <div className="role-badge">
+            <FiUsers size={16} />
+            <span>{userRole === 'admin' ? 'Administrator' : 'Team Member'}</span>
+          </div>
+        </div>
       </div>
 
+      {/* Stats Grid */}
       <div className="stats-grid">
-        <div className="stat-card">
-          <h3>Total Tasks</h3>
-          <p className="stat-number">{stats.total}</p>
-        </div>
-        <div className="stat-card open">
-          <h3>Open</h3>
-          <p className="stat-number">{stats.open}</p>
-        </div>
-        <div className="stat-card in-progress">
-          <h3>In Progress</h3>
-          <p className="stat-number">{stats.inProgress}</p>
-        </div>
-        <div className="stat-card closed">
-          <h3>Closed</h3>
-          <p className="stat-number">{stats.closed}</p>
-        </div>
+        <StatCard
+          title="Total Tasks"
+          value={stats.total}
+          icon={FiGrid}
+          color="#64748b"
+          status="total"
+        />
+        <StatCard
+          title="Open"
+          value={stats.open}
+          icon={FiClock}
+          color="#3b82f6"
+          status="open"
+        />
+        <StatCard
+          title="In Progress"
+          value={stats.inProgress}
+          icon={FiBarChart2}
+          color="#f59e0b"
+          status="progress"
+        />
+        <StatCard
+          title="Completed"
+          value={stats.closed}
+          icon={FiCheckCircle}
+          color="#10b981"
+          status="completed"
+        />
       </div>
 
-      <div className="quick-actions">
-        <h3>Quick Actions</h3>
-        <div className="action-buttons">
-          <Link to="/tasks" className="btn btn-primary">
-            View All Tasks
+      {/* Main Actions Section */}
+      <div className="actions-section">
+        <div className="section-header">
+          <h2>Quick Actions</h2>
+          <Link to="/tasks" className="view-all-link">
+            View All Tasks →
+          </Link>
+        </div>
+        
+        <div className="action-grid">
+          <Link to="/tasks" className="action-card primary">
+            <div className="action-icon">
+              <FiClipboard />
+            </div>
+            <div className="action-content">
+              <h3>Browse Tasks</h3>
+              <p>View and manage all tasks</p>
+            </div>
+            <span className="action-arrow">→</span>
           </Link>
 
           {userRole === "admin" && (
-            <Link to="/tasks/create" className="btn btn-success">
-              Create New Task
-            </Link>
+            <>
+              <Link to="/tasks/create" className="action-card success">
+                <div className="action-icon">
+                  <FiPlusCircle />
+                </div>
+                <div className="action-content">
+                  <h3>Create Task</h3>
+                  <p>Add a new task to the system</p>
+                </div>
+                <span className="action-arrow">→</span>
+              </Link>
+
+              <Link to="/tasks/assign" className="action-card warning">
+                <div className="action-icon">
+                  <FiUsers />
+                </div>
+                <div className="action-content">
+                  <h3>Assign Tasks</h3>
+                  <p>Allocate tasks to team members</p>
+                </div>
+                <span className="action-arrow">→</span>
+              </Link>
+            </>
           )}
         </div>
       </div>
 
+      {/* Admin Section */}
       {userRole === "admin" && (
         <div className="admin-section">
-          <h3>Admin Section</h3>
-          <div className="admin-actions">
-            <Link to="/tasks" className="btn btn-secondary">
-              Manage All Tasks
+          <div className="section-header">
+            <h2>Administration</h2>
+            <span className="admin-badge">Admin Access</span>
+          </div>
+          
+          <div className="admin-grid">
+            <Link to="/tasks" className="admin-card">
+              <FiClipboard size={24} />
+              <h4>Task Management</h4>
+              <p>Full control over all tasks</p>
             </Link>
-            <Link to="/users" className="btn btn-secondary">
-              Manage Users
+            
+            <Link to="/users" className="admin-card">
+              <FiUsers size={24} />
+              <h4>User Management</h4>
+              <p>Manage team members and roles</p>
             </Link>
-            <Link to="/tasks/assign" className="btn btn-secondary">
-              Assign Task
-            </Link>
+            
+            <div className="admin-card stats-preview">
+              <h4>Task Distribution</h4>
+              <div className="progress-bars">
+                <div className="progress-item">
+                  <span>Open</span>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill open" 
+                      style={{ width: `${(stats.open / stats.total * 100) || 0}%` }}
+                    ></div>
+                  </div>
+                  <span className="progress-value">{stats.open}</span>
+                </div>
+                <div className="progress-item">
+                  <span>In Progress</span>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill progress" 
+                      style={{ width: `${(stats.inProgress / stats.total * 100) || 0}%` }}
+                    ></div>
+                  </div>
+                  <span className="progress-value">{stats.inProgress}</span>
+                </div>
+                <div className="progress-item">
+                  <span>Completed</span>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill completed" 
+                      style={{ width: `${(stats.closed / stats.total * 100) || 0}%` }}
+                    ></div>
+                  </div>
+                  <span className="progress-value">{stats.closed}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
