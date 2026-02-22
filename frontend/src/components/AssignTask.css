@@ -1,0 +1,63 @@
+/* AssignTask.css */
+
+.assign-task {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.assign-task h2 {
+  margin-bottom: 20px;
+  color: #333333;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #555555;
+}
+
+.form-group select {
+  padding: 8px 10px;
+  border-radius: 5px;
+  border: 1px solid #cccccc;
+  font-size: 14px;
+}
+
+.btn {
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.message {
+  padding: 10px 15px;
+  background-color: #e0f7fa;
+  color: #007b7f;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
+}
