@@ -53,6 +53,7 @@ function App() {
 
             <main className="App-main">
               <Routes>
+                <Route path="/tasks/assign" element={<AssignTask user={user} />} />
                 <Route path="/" element={<Dashboard user={user} />} />
                 <Route path="/tasks" element={<TaskList user={user} />} />
                 <Route
