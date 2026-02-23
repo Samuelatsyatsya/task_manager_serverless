@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { Amplify } from "aws-amplify";
 import { Authenticator } from "@aws-amplify/ui-react";
+import { fetchAuthSession } from "aws-amplify/auth";
 import "@aws-amplify/ui-react/styles.css";
 import { 
   FiHome, 
@@ -16,9 +17,6 @@ import {
   FiLogOut, 
   FiZap,
   FiGrid,
-  FiCheckCircle,
-  FiClock,
-  FiUser,
   FiSettings
 } from "react-icons/fi";
 
@@ -136,6 +134,109 @@ const getUserInitials = (loginId) => {
   }
 };
 
+// Main App Content component that uses hooks
+function AppContent({ user, signOut }) {
+  const [userRole, setUserRole] = useState('member');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function determineUserRole() {
+      try {
+        // First check user attributes for custom:role
+        const customRole = user?.attributes?.['custom:role'];
+        
+        // Then check the session for cognito:groups
+        const session = await fetchAuthSession();
+        const payload = session.tokens?.idToken?.payload;
+        const groups = payload?.['cognito:groups'] || [];
+        
+        // Check both sources for admin
+        const isAdmin = 
+          customRole === 'admin' || 
+          groups.includes('admin') ||
+          customRole === 'Admin' ||
+          groups.includes('Admin');
+        
+        console.log('User role determination:', {
+          customRole,
+          groups,
+          isAdmin,
+          fromAttributes: customRole === 'admin',
+          fromGroups: groups.includes('admin')
+        });
+        
+        setUserRole(isAdmin ? 'admin' : 'member');
+      } catch (error) {
+        console.error('Error determining user role:', error);
+        setUserRole('member');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (user) {
+      determineUserRole();
+    }
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading user permissions...</p>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <div className="app-container">
+        <Navigation userRole={userRole} />
+        
+        <div className="main-content">
+          <header className="content-header">
+            <div className="header-left">
+              <h1 className="page-title">
+                {getPageTitle(window.location.pathname)}
+              </h1>
+            </div>
+            
+            <div className="header-right">
+              <div className="user-menu">
+                <div className="user-avatar">
+                  {getUserInitials(user?.signInDetails?.loginId)}
+                </div>
+                <div className="user-details">
+                  <span className="user-name">
+                    {formatUserName(user?.signInDetails?.loginId)}
+                  </span>
+                  <span className="user-role">
+                    {userRole === 'admin' ? 'Administrator' : 'Team Member'}
+                  </span>
+                </div>
+                <button onClick={signOut} className="btn-signout" title="Sign Out">
+                  <FiLogOut className="signout-icon" />
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="content-area">
+            <Routes>
+              <Route path="/tasks/assign" element={<AssignTask user={user} />} />
+              <Route path="/" element={<Dashboard user={user} />} />
+              <Route path="/tasks" element={<TaskList user={user} />} />
+              <Route path="/tasks/create" element={<CreateTask user={user} />} />
+              <Route path="/tasks/:taskId" element={<TaskDetail user={user} />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
+      </div>
+    </Router>
+  );
+}
+
 function App() {
   return (
     <Authenticator
@@ -154,51 +255,7 @@ function App() {
       }}
     >
       {({ signOut, user }) => (
-        <Router>
-          <div className="app-container">
-            <Navigation userRole={user?.attributes?.['custom:role']} />
-            
-            <div className="main-content">
-              <header className="content-header">
-                <div className="header-left">
-                  <h1 className="page-title">
-                    {getPageTitle(window.location.pathname)}
-                  </h1>
-                </div>
-                
-                <div className="header-right">
-                  <div className="user-menu">
-                    <div className="user-avatar">
-                      {getUserInitials(user?.signInDetails?.loginId)}
-                    </div>
-                    <div className="user-details">
-                      <span className="user-name">
-                        {formatUserName(user?.signInDetails?.loginId)}
-                      </span>
-                      <span className="user-role">
-                        {user?.attributes?.['custom:role'] === 'admin' ? 'Administrator' : 'Team Member'}
-                      </span>
-                    </div>
-                    <button onClick={signOut} className="btn-signout" title="Sign Out">
-                      <FiLogOut className="signout-icon" />
-                    </button>
-                  </div>
-                </div>
-              </header>
-
-              <main className="content-area">
-                <Routes>
-                  <Route path="/tasks/assign" element={<AssignTask user={user} />} />
-                  <Route path="/" element={<Dashboard user={user} />} />
-                  <Route path="/tasks" element={<TaskList user={user} />} />
-                  <Route path="/tasks/create" element={<CreateTask user={user} />} />
-                  <Route path="/tasks/:taskId" element={<TaskDetail user={user} />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </main>
-            </div>
-          </div>
-        </Router>
+        <AppContent user={user} signOut={signOut} />
       )}
     </Authenticator>
   );
