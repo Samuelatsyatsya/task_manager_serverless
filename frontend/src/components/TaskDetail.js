@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { taskAPI } from '../services/api';
 import './TaskDetail.css';
 
@@ -13,26 +14,24 @@ function TaskDetail({ user }) {
   const [updating, setUpdating] = useState(false);
   const [newStatus, setNewStatus] = useState('');
 
-  useEffect(() => {
-    fetchTask();
-    getUserRole();
-  }, [taskId]);
-
-  const getUserRole = async () => {
+  const getUserRole = useCallback(async () => {
     try {
-      const attributes = user.signInUserSession?.idToken?.payload;
-      const role = attributes?.['custom:role'] || 'member';
-      setUserRole(role);
+      const session = await fetchAuthSession();
+      const payload = session.tokens?.idToken?.payload;
+      const customRole = payload?.['custom:role'];
+      const groups = payload?.['cognito:groups'] || [];
+      const isAdmin = customRole === 'admin' || groups.includes('admin');
+      setUserRole(isAdmin ? 'admin' : 'member');
     } catch (err) {
       console.error('Error getting user role:', err);
     }
-  };
+  }, []);
 
-  const fetchTask = async () => {
+  const fetchTask = useCallback(async () => {
     try {
       setLoading(true);
       const response = await taskAPI.getTasks();
-      const foundTask = response.tasks.find(t => t.taskId === taskId);
+      const foundTask = (response.tasks || []).find(t => t.taskId === taskId);
       
       if (foundTask) {
         setTask(foundTask);
@@ -47,7 +46,12 @@ function TaskDetail({ user }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [taskId]);
+
+  useEffect(() => {
+    fetchTask();
+    getUserRole();
+  }, [fetchTask, getUserRole]);
 
   const handleStatusUpdate = async () => {
     if (newStatus === task.status) {
@@ -56,7 +60,7 @@ function TaskDetail({ user }) {
 
     try {
       setUpdating(true);
-      await taskAPI.updateTask(taskId, { status: newStatus });
+      await taskAPI.updateStatus(taskId, newStatus);
       await fetchTask();
       setError(null);
     } catch (err) {
@@ -181,7 +185,7 @@ function TaskDetail({ user }) {
               >
                 <option value="open">Open</option>
                 <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
+                {userRole === 'admin' && <option value="closed">Closed</option>}
               </select>
               <button
                 onClick={handleStatusUpdate}

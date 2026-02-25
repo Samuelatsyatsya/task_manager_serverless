@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { taskAPI } from '../services/api';
 import './TaskList.css';
 
@@ -10,22 +11,20 @@ function TaskList({ user }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [userRole, setUserRole] = useState('member');
 
-  useEffect(() => {
-    fetchTasks();
-    getUserRole();
-  }, [statusFilter]);
-
-  const getUserRole = async () => {
+  const getUserRole = useCallback(async () => {
     try {
-      const attributes = user.signInUserSession?.idToken?.payload;
-      const role = attributes?.['custom:role'] || 'member';
-      setUserRole(role);
+      const session = await fetchAuthSession();
+      const payload = session.tokens?.idToken?.payload;
+      const customRole = payload?.['custom:role'];
+      const groups = payload?.['cognito:groups'] || [];
+      const isAdmin = customRole === 'admin' || groups.includes('admin');
+      setUserRole(isAdmin ? 'admin' : 'member');
     } catch (err) {
       console.error('Error getting user role:', err);
     }
-  };
+  }, []);
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
       const filter = statusFilter === 'all' ? null : statusFilter;
@@ -38,7 +37,12 @@ function TaskList({ user }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
+
+  useEffect(() => {
+    fetchTasks();
+    getUserRole();
+  }, [fetchTasks, getUserRole]);
 
   const getPriorityClass = (priority) => {
     switch (priority) {

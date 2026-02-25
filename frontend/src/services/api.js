@@ -51,6 +51,11 @@ export const taskAPI = {
     return response.data;
   },
 
+  updateStatus: async (taskId, status) => {
+    const response = await apiClient.put(`/tasks/${taskId}/status`, { status });
+    return response.data;
+  },
+
   assignTask: async (taskId, userId) => {
     const response = await apiClient.post(`/tasks/${taskId}/assign`, {
       userId,
