@@ -73,9 +73,9 @@ function Navigation({ userRole }) {
       {userRole === 'admin' && (
         <div className="nav-section">
           <div className="nav-section-title">Admin</div>
-          <Link to="/settings" className="nav-link">
+          <Link to="/tasks/assign" className="nav-link">
             <FiSettings className="nav-icon" />
-            <span className="nav-label">Settings</span>
+            <span className="nav-label">Assign Tasks</span>
           </Link>
         </div>
       )}
@@ -223,10 +223,24 @@ function AppContent({ user, signOut }) {
 
           <main className="content-area">
             <Routes>
-              <Route path="/tasks/assign" element={<AssignTask user={user} />} />
+              <Route
+                path="/tasks/assign"
+                element={
+                  userRole === "admin"
+                    ? <AssignTask user={user} />
+                    : <Navigate to="/tasks" replace />
+                }
+              />
               <Route path="/" element={<Dashboard user={user} />} />
               <Route path="/tasks" element={<TaskList user={user} />} />
-              <Route path="/tasks/create" element={<CreateTask user={user} />} />
+              <Route
+                path="/tasks/create"
+                element={
+                  userRole === "admin"
+                    ? <CreateTask user={user} />
+                    : <Navigate to="/tasks" replace />
+                }
+              />
               <Route path="/tasks/:taskId" element={<TaskDetail user={user} />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

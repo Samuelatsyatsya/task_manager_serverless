@@ -9,7 +9,6 @@ import {
   FiCheckCircle,
   FiPlus,
   FiList,
-  FiUsers,
   FiUserPlus,
   FiArrowRight,
   FiAlertCircle
@@ -262,14 +261,14 @@ function Dashboard({ user }) {
             <div className="tasks-list">
               {recentTasks.map((task) => (
                 <div 
-                  key={task.id} 
+                  key={task.taskId} 
                   className="task-item"
-                  onClick={() => navigate(`/tasks/${task.id}`)}
+                  onClick={() => navigate(`/tasks/${task.taskId}`)}
                 >
                   <div className="task-info">
                     <h3 className="task-title">{task.title || 'Untitled Task'}</h3>
                     <p className="task-meta">
-                      <span className="task-id">#{task.id?.slice(0, 8) || 'N/A'}</span>
+                      <span className="task-id">#{task.taskId?.slice(0, 8) || 'N/A'}</span>
                       <span className="task-due">Due: {task.dueDate || 'Not set'}</span>
                     </p>
                   </div>
@@ -323,15 +322,6 @@ function Dashboard({ user }) {
                   <div className="action-content">
                     <h3>Assign Tasks</h3>
                     <p>Allocate tasks to team members</p>
-                  </div>
-                  <FiArrowRight className="action-arrow" />
-                </Link>
-
-                <Link to="/users" className="action-item">
-                  <FiUsers className="action-icon" />
-                  <div className="action-content">
-                    <h3>User Management</h3>
-                    <p>Manage team members and roles</p>
                   </div>
                   <FiArrowRight className="action-arrow" />
                 </Link>
