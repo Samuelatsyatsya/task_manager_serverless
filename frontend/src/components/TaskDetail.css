@@ -1,0 +1,132 @@
+.task-detail {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.task-detail-header {
+  margin-bottom: 2rem;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #1a73e8;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-back:hover {
+  text-decoration: underline;
+}
+
+.task-detail-header h2 {
+  color: #333;
+  font-size: 2rem;
+}
+
+.task-detail-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.task-info-section,
+.task-description-section,
+.task-actions-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.task-actions-section {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.task-info-section h3,
+.task-description-section h3,
+.task-actions-section h3 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.info-row label {
+  font-weight: 600;
+  color: #666;
+  min-width: 120px;
+}
+
+.info-row span {
+  color: #333;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.task-description-section p {
+  color: #333;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.status-update {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.status-update label {
+  font-weight: 500;
+  color: #333;
+}
+
+.status-update select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.admin-actions {
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.error-container {
+  text-align: center;
+  padding: 3rem;
+}
+
+.error-container .error {
+  margin-bottom: 2rem;
+}

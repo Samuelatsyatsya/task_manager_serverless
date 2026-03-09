@@ -1,0 +1,142 @@
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+terraform/tfplan
+terraform/**/*.zip
+terraform/modules/**/*.zip
+terraform/terraform.tfvars
+terraform/terraform.tfvars.json
+terraform/outputs.json
+terraform/deployment-outputs.json
+
+# Lambda
+lambda/**/*.zip
+lambda/**/package/
+lambda/**/__pycache__/
+lambda/**/*.pyc
+lambda/**/*.pyo
+lambda/**/*.pyd
+lambda/**/.Python
+lambda/**/env/
+lambda/**/venv/
+lambda/**/ENV/
+lambda/**/build/
+lambda/**/develop-eggs/
+lambda/**/dist/
+lambda/**/downloads/
+lambda/**/eggs/
+lambda/**/.eggs/
+lambda/**/lib/
+lambda/**/lib64/
+lambda/**/parts/
+lambda/**/sdist/
+lambda/**/var/
+lambda/**/wheels/
+lambda/**/*.egg-info/
+lambda/**/.installed.cfg
+lambda/**/*.egg
+
+# Frontend
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.env.example
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnp
+frontend/.pnp.js
+frontend/coverage/
+frontend/.eslintcache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Output files
+outputs.json
+deployment-outputs.json
+*.tfvars.backup
+
+# Secrets
+*.pem
+*.key
+*.cert
+.env
+.env.*
+!.env.example
+secrets/
+credentials/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node
+node_modules/
+jspm_packages/
+.npm
+.yarn-integrity
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+coverage/
+*.cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+site/
