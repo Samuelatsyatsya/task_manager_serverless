@@ -93,11 +93,6 @@ task_manager_serverless/
 │   ├── public/
 │   ├── build/                # Production build output
 │   └── package.json
-├── scripts/                  # Utility scripts
-│   ├── deploy.sh
-│   ├── destroy.sh
-│   ├── generate-env.sh
-│   └── setup-users.sh
 ├── Serverless.drawio.svg     # Architecture diagram
 └── README.md                 # This file
 ```
@@ -111,7 +106,7 @@ task_manager_serverless/
 Edit `terraform/terraform.tfvars` with your AWS details:
 
 ```hcl
-aws_region             = "us-east-1"
+aws_region             = "us-central-1"
 project_name           = "task-management"
 environment            = "production"
 allowed_email_domains  = ["amalitech.com", "amalitechtraining.org"]
